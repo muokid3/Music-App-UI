@@ -32,6 +32,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -40,7 +41,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.dm.berxley.musicappui.models.NavigationDrawerItem
+import com.dm.berxley.musicappui.viewModels.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -51,11 +56,19 @@ fun MainView() {
 
     val drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed)
     val scope: CoroutineScope = rememberCoroutineScope()
-    var selectedItemIndex by rememberSaveable {
-        mutableStateOf(0)
+
+    val mainViewModel: MainViewModel = viewModel()
+    val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    val currentScreen = mainViewModel.currentScreen.value
+    val title = remember {
+        mutableStateOf(currentScreen.title)
     }
 
-    val navigationDrawerItems = listOf<NavigationDrawerItem>(
+
+    val navigationDrawerItems = listOf(
         NavigationDrawerItem(
             title = "Account",
             selectedIcon = Icons.Filled.AccountBox,
@@ -82,16 +95,17 @@ fun MainView() {
                     NavigationDrawerItem(
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                         label = { Text(text = navigationDrawerItem.title) },
-                        selected = index == selectedItemIndex,
+                        selected = index == mainViewModel.selectedItemIndex.value,
                         onClick = {
-                            selectedItemIndex = index
+                            mainViewModel.setSelectedItemIndex(index)
+                            title.value = navigationDrawerItem.title
                             scope.launch {
                                 drawerState.close()
                             }
                         },
                         icon = {
                             Icon(
-                                imageVector = if (selectedItemIndex == index) navigationDrawerItem.selectedIcon else navigationDrawerItem.unselectedIcon,
+                                imageVector = if (mainViewModel.selectedItemIndex.value == index) navigationDrawerItem.selectedIcon else navigationDrawerItem.unselectedIcon,
                                 contentDescription = navigationDrawerItem.title
                             )
                         },
@@ -108,7 +122,7 @@ fun MainView() {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(text = "Home") },
+                    title = { Text(text = title.value) },
                     navigationIcon = {
                         IconButton(onClick = {
                             //open drawer
@@ -120,40 +134,9 @@ fun MainView() {
                         }
                     })
             },
-
             ) {
-            Text(text = "text", modifier = Modifier.padding(it))
+            mainViewModel.setSelectedItemIndex(2)
+            Navigation(navController = navController, viewModel = mainViewModel, pd = it)
         }
     }
-}
-
-
-@Composable
-fun DrawerItem(
-    selected: Boolean,
-    onDrawerItemClicked: () -> Unit,
-    item: Screen.DrawerScreen
-) {
-    val bg = if (selected) Color.DarkGray else Color.White
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 8.dp, vertical = 16.dp)
-        .clickable { onDrawerItemClicked() }
-        .background(bg)
-    ) {
-
-        Icon(
-            painter = painterResource(id = item.icon),
-            contentDescription = item.dTitle,
-            modifier = Modifier.padding(end = 8.dp, top = 4.dp)
-        )
-
-
-        Text(
-            text = item.dTitle,
-            style = MaterialTheme.typography.headlineMedium
-        )
-
-    }
-
 }
