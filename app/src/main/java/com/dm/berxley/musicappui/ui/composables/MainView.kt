@@ -11,11 +11,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.FindInPage
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.AccountBox
 import androidx.compose.material.icons.outlined.AddCircle
+import androidx.compose.material.icons.outlined.FindInPage
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LibraryMusic
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,6 +30,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
@@ -92,6 +100,25 @@ fun MainView() {
         ),
     )
 
+    val bottomBarItems = listOf(
+        NavigationDrawerItem(
+            title = "Home",
+            selectedIcon = Icons.Filled.Home,
+            unselectedIcon = Icons.Outlined.Home
+        ),
+        NavigationDrawerItem(
+            title = "Browse",
+            selectedIcon = Icons.Filled.FindInPage,
+            unselectedIcon = Icons.Outlined.FindInPage,
+            badgeCount = 31
+        ),
+        NavigationDrawerItem(
+            title = "Library",
+            selectedIcon = Icons.Filled.LibraryMusic,
+            unselectedIcon = Icons.Outlined.LibraryMusic
+        ),
+    )
+
     ModalNavigationDrawer(
         drawerContent = {
             ModalDrawerSheet {
@@ -130,9 +157,39 @@ fun MainView() {
         drawerState = drawerState
     ) {
         Scaffold(
+            bottomBar = {
+                NavigationBar {
+                    bottomBarItems.forEachIndexed { index, item ->
+                        NavigationBarItem(
+                            selected = mainViewModel.selectedBottomIndex.value == index,
+                            onClick = {
+                                title.value = item.title
+                                mainViewModel.setSelectedBottomIndex(index)
+                                //navigate here using navcontroller
+                            },
+                            label = {
+                                Text(text = item.title)
+                            },
+                            icon = {
+                                BadgedBox(badge = {
+                                    if (item.badgeCount != null) {
+                                        Badge {
+                                            Text(text = item.badgeCount.toString())
+                                        }
+                                    }
+                                }) {
+                                    Icon(
+                                        imageVector = if (mainViewModel.selectedBottomIndex.value == index) item.selectedIcon else item.unselectedIcon,
+                                        contentDescription = item.title
+                                    )
+                                }
+                            })
+                    }
+                }
+            },
             topBar = {
                 TopAppBar(
-                    title = { Text(text =  title.value) },
+                    title = { Text(text = title.value) },
                     navigationIcon = {
                         IconButton(onClick = {
                             //open drawer
