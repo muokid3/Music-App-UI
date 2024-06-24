@@ -1,5 +1,6 @@
 package com.dm.berxley.musicappui.ui.composables
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
@@ -30,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +40,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -47,6 +50,7 @@ import androidx.navigation.compose.rememberNavController
 import com.dm.berxley.musicappui.models.NavigationDrawerItem
 import com.dm.berxley.musicappui.viewModels.MainViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
 
 
@@ -59,8 +63,9 @@ fun MainView() {
 
     val mainViewModel: MainViewModel = viewModel()
     val navController = rememberNavController()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+    val dialogOpen = remember {
+        mutableStateOf(false)
+    }
 
     val currentScreen = mainViewModel.currentScreen.value
     val title = remember {
@@ -99,6 +104,11 @@ fun MainView() {
                         onClick = {
                             mainViewModel.setSelectedItemIndex(index)
                             title.value = navigationDrawerItem.title
+                            when (index) {
+                                0 -> navController.navigate(Screen.DrawerScreen.Account.route)
+                                1 -> navController.navigate(Screen.DrawerScreen.Subscription.route)
+                                2 -> dialogOpen.value = true
+                            }
                             scope.launch {
                                 drawerState.close()
                             }
@@ -122,7 +132,7 @@ fun MainView() {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(text = title.value) },
+                    title = { Text(text =  title.value) },
                     navigationIcon = {
                         IconButton(onClick = {
                             //open drawer
@@ -134,9 +144,10 @@ fun MainView() {
                         }
                     })
             },
-            ) {
-            mainViewModel.setSelectedItemIndex(2)
+        ) {
+            mainViewModel.setSelectedItemIndex(0)
             Navigation(navController = navController, viewModel = mainViewModel, pd = it)
+            AccountDialog(dialogOpen = dialogOpen)
         }
     }
 }

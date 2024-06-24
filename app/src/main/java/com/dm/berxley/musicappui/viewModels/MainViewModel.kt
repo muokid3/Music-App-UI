@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModel
 import com.dm.berxley.musicappui.ui.composables.Screen
 
 class MainViewModel: ViewModel() {
-    private val _currentScreen: MutableState<Screen> = mutableStateOf(Screen.DrawerScreen.AddAccount)
+    private val _currentScreen: MutableState<Screen> = mutableStateOf(Screen.DrawerScreen.Account)
     private val _selectedItemIndex = mutableStateOf(0)
 
     val currentScreen = _currentScreen
