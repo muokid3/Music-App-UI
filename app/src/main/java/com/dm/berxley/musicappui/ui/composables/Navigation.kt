@@ -15,13 +15,24 @@ import com.dm.berxley.musicappui.viewModels.MainViewModel
 fun Navigation(navController: NavController, viewModel: MainViewModel, pd: PaddingValues) {
     NavHost(
         navController = navController as NavHostController,
-        startDestination = Screen.DrawerScreen.Account.route,
+        startDestination = Screen.DrawerScreen.Home.route,
         modifier = Modifier.padding(pd)
-    ){
-        composable(Screen.DrawerScreen.Account.route){
+    ) {
+        composable(Screen.DrawerScreen.Home.route) {
+            HomeView()
+        }
+
+        composable(Screen.DrawerScreen.Browse.route) {
+            BrowseView()
+        }
+
+        composable(Screen.DrawerScreen.Library.route) {
+
+        }
+        composable(Screen.DrawerScreen.Account.route) {
             AccountView()
         }
-        composable(Screen.DrawerScreen.Subscription.route){
+        composable(Screen.DrawerScreen.Subscription.route) {
             Subscription()
         }
     }

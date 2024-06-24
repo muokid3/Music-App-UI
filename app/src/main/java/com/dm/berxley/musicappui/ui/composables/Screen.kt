@@ -10,6 +10,23 @@ sealed class Screen(val title: String, val route: String) {
 
     sealed class DrawerScreen(val dTitle: String, val dRoute: String, @DrawableRes val icon: Int) :
         Screen(dTitle, dRoute) {
+        object Home : DrawerScreen(
+            "Home",
+            "home",
+            R.drawable.ic_home
+        )
+
+        object Browse : DrawerScreen(
+            "Browse",
+            "browse",
+            R.drawable.ic_browse
+        )
+        object Library : DrawerScreen(
+            "Library",
+            "library",
+            R.drawable.ic_library
+        )
+
         object Account : DrawerScreen(
             "Account",
             "account",
